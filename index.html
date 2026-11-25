@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Мой трекер привычек</title>
+<style>
+body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+h1 { text-align: center; }
+.box { background: white; padding: 15px; border-radius: 10px; }
+table { width: 100%; background: white; }
+td { border: 1px solid #ccc; text-align: center; padding: 8px; }
+button { padding: 8px; background: green; color: white; border: none; border-radius: 5px; }
+.ok { background: lightgreen; }
+</style>
+</head>
+<body>
+<h1>Мои привычки 📅</h1>
+<div class="box">
+  <input id="habitName" placeholder="Напиши привычку">
+  <button onclick="add()">Добавить</button>
+  <p id="info"></p>
+</div>
+<br>
+<table id="myTable">
+  <tr>
+    <td>Привычка</td>
+    <td>Пн</td><td>Вт</td><td>Ср</td><td>Чт</td><td>Пт</td><td>Сб</td><td>Вс</td>
+    <td>Серия</td>
+  </tr>
+</table>
+<script>
+let habits = [];
+if (localStorage.getItem("myHabits")) {
+  habits = JSON.parse(localStorage.getItem("myHabits"));
+  show();
+}
+function add() {
+  let name = document.getElementById("habitName").value;
+  if (name == "") { alert("Напиши привычку!"); return; }
+  habits.push({ name: name, days: [0,0,0,0,0,0,0] });
+  document.getElementById("habitName").value = "";
+  save(); show();
+}
+function clickDay(h, d) {
+  if (habits[h].days[d] == 0) { habits[h].days[d] = 1; } else { habits[h].days[d] = 0; }
+  save(); show();
+}
+function getStreak(days) {
+  let s = 0;
+  for (let i = 0; i < 7; i++) { if (days[i] == 1) s++; else s = 0; }
+  return s;
+}
+function show() {
+  let table = document.getElementById("myTable");
+  table.innerHTML = "<tr><td>Привычка</td><td>Пн</td><td>Вт</td><td>Ср</td><td>Чт</td><td>Пт</td><td>Сб</td><td>Вс</td><td>Серия 🔥</td></tr>";
+  for (let h = 0; h < habits.length; h++) {
+    let row = "<tr><td>" + habits[h].name + "</td>";
+    for (let d = 0; d < 7; d++) {
+      let klass = ""; let text = "";
+      if (habits[h].days[d] == 1) { klass = "ok"; text = "✓"; }
+      row += "<td class='" + klass + "' onclick='clickDay(" + h + "," + d + ")'>" + text + "</td>";
+    }
+    row += "<td>" + getStreak(habits[h].days) + "</td></tr>";
+    table.innerHTML += row;
+  }
+  document.getElementById("info").innerText = "Всего привычек: " + habits.length;
+}
+function save() { localStorage.setItem("myHabits", JSON.stringify(habits)); }
+</script>
+</body>
+</html>
